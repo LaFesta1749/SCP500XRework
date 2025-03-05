@@ -34,11 +34,11 @@ namespace SCP500XRework.SCP500Pills
 
         private void OnItemUsed(UsingItemEventArgs ev)
         {
-            if (!Check(ev.Item)) return; // ✅ Проверява дали използваното хапче е правилното!
+            if (!Check(ev.Item)) return;
 
+            ev.Player.RemoveItem(ev.Item); // ✅ Премахваме хапчето веднага
             ev.Player.Broadcast(5, "<color=yellow>You used SCP-500-B!</color> Switching teams...");
             SwapTeam(ev.Player);
-            ev.Player.RemoveItem(ev.Item);
         }
 
         private void SwapTeam(Player player)
