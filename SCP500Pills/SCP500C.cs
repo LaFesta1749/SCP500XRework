@@ -7,6 +7,7 @@ using Exiled.Events.EventArgs.Player;
 using System.Linq;
 using UnityEngine;
 using Exiled.API.Enums;
+using MEC;
 
 namespace SCP500XRework.SCP500Pills
 {
@@ -51,12 +52,18 @@ namespace SCP500XRework.SCP500Pills
             {
                 if (Vector3.Distance(player.Position, enemy.Position) <= EffectRadius)
                 {
+                    // ✅ Активиране на ефектите
                     enemy.EnableEffect(EffectType.Blinded, BlurDuration);
                     enemy.EnableEffect(EffectType.Concussed, MovementChaosDuration);
                     enemy.EnableEffect(EffectType.AmnesiaVision, AmnesiaDuration);
                     enemy.ShowHint("<color=red>You feel dizzy and disoriented!</color>", 5);
 
                     Log.Info($"{player.Nickname} used SCP-500-C and confused {enemy.Nickname}!");
+
+                    // ✅ Премахване на ефектите след зададеното време
+                    Timing.CallDelayed(BlurDuration, () => enemy.DisableEffect(EffectType.Blinded));
+                    Timing.CallDelayed(MovementChaosDuration, () => enemy.DisableEffect(EffectType.Concussed));
+                    Timing.CallDelayed(AmnesiaDuration, () => enemy.DisableEffect(EffectType.AmnesiaVision));
                 }
             }
         }
