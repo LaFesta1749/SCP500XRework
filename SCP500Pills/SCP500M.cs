@@ -3,7 +3,6 @@ using Exiled.API.Features;
 using Exiled.API.Features.Items;
 using Exiled.CustomItems.API.Features;
 using Exiled.Events.EventArgs.Player;
-using Exiled.API.Extensions; // ✅ MirrorExtensions за промяна на модела
 using MEC;
 using System.Collections.Generic;
 using UnityEngine;
@@ -20,113 +19,109 @@ namespace SCP500XRework.SCP500Pills
         public override float Weight { get; set; } = 0.1f;
         public override SpawnProperties SpawnProperties { get; set; } = new();
 
-        private static readonly List<string> Distortions = new()
-        {
-            "You appear to be upside down.",
-            "Your model is stretched vertically.",
-            "Your model is stretched horizontally.",
-            "Your arms seem way too long.",
-            "Your head is too big.",
-            "Your legs are too short.",
-            "Your body is slightly floating above the ground.",
-            "Your model flickers randomly.",
-            "Your body is twisted at a strange angle.",
-            "Your entire model is slightly shaking."
-        };
+        // 📌 Запазваме текущите изкривявания на всеки играч
+        private static readonly Dictionary<Player, Vector3> PlayerDistortions = new();
 
         protected override void SubscribeEvents()
         {
             base.SubscribeEvents();
             Exiled.Events.Handlers.Player.UsingItem += OnItemUsed;
+            Exiled.Events.Handlers.Player.Dying += OnPlayerDeath; // ✅ Изчистване при смърт
         }
 
         protected override void UnsubscribeEvents()
         {
             base.UnsubscribeEvents();
             Exiled.Events.Handlers.Player.UsingItem -= OnItemUsed;
+            Exiled.Events.Handlers.Player.Dying -= OnPlayerDeath;
         }
 
         private void OnItemUsed(UsingItemEventArgs ev)
         {
             if (!Check(ev.Item)) return;
 
-            string randomDistortion = Distortions[UnityEngine.Random.Range(0, Distortions.Count)];
-            ev.Player.Broadcast(5, $"<color=yellow>You used SCP-500-M!</color> {randomDistortion}");
+            // ✅ Ако играчът вече има изкривяване, взимаме текущото му скалиране
+            Vector3 currentScale = PlayerDistortions.ContainsKey(ev.Player)
+                ? PlayerDistortions[ev.Player]
+                : ev.Player.GameObject.transform.localScale;
 
-            ApplyDistortion(ev.Player);
+            // ✅ Приложи ново изкривяване
+            Vector3 newScale = ApplyDistortion(ev.Player, currentScale);
+
+            // ✅ Запази изкривяването, за да не се губи
+            PlayerDistortions[ev.Player] = newScale;
+
+            // ✅ Изпрати съобщение за ефекта
+            ev.Player.Broadcast(3, $"<color=#ff8dfb>You used SCP-500-M!</color> Your appearance has changed...");
+
             ev.Player.RemoveItem(ev.Item);
         }
 
-        private void ApplyDistortion(Player player)
+        private Vector3 ApplyDistortion(Player player, Vector3 scale)
         {
-            int distortionType = UnityEngine.Random.Range(0, Distortions.Count);
+            int distortionType = UnityEngine.Random.Range(0, 11); // Общо 11 различни модификации
 
             switch (distortionType)
             {
                 case 0:
-                    MirrorExtensions.ChangeAppearance(player, player.Role.Type, true, 180); // Обърнат с главата надолу
+                    scale.y *= -1f; // 🔄 Обърнат модел с главата надолу
+                    player.Broadcast(5, "<color=#ff8dfb>You appear upside down!</color>");
                     break;
                 case 1:
-                    ScaleModel(player, new Vector3(1f, 1.5f, 1f)); // Вертикално разтегнат
+                    scale.y = 0.5f; // 🔼 Става нисък и левитиращ
+                    player.Broadcast(5, "<color=#ff8dfb>You appear short and floating!</color>");
                     break;
                 case 2:
-                    ScaleModel(player, new Vector3(1.5f, 1f, 1f)); // Хоризонтално разтегнат
+                    scale.z *= -1f; // 🔄 Гледа назад
+                    player.Broadcast(5, "<color=#ff8dfb>You appear to be facing backwards!</color>");
                     break;
                 case 3:
-                    ScaleModel(player, new Vector3(1f, 1.2f, 1.2f)); // По-дълги ръце
+                    scale.z *= 0.05f; // 📝 Хартиен модел (много тънък)
+                    player.Broadcast(5, "<color=#ff8dfb>You appear paper thin!</color>");
                     break;
                 case 4:
-                    ScaleModel(player, new Vector3(1.2f, 1.2f, 1.2f)); // Голяма глава
+                    scale.x += 1f; // ➡️ Разширяване на тялото
+                    player.Broadcast(5, "<color=#ff8dfb>You appear wider!</color>");
                     break;
                 case 5:
-                    ScaleModel(player, new Vector3(1f, 0.8f, 1f)); // Къси крака
+                    scale.y += 0.5f; // ⬆️ По-висок модел
+                    player.Broadcast(5, "<color=#ff8dfb>You appear taller!</color>");
                     break;
                 case 6:
-                    player.Position += Vector3.up * 0.3f; // Леко лети над земята
+                    scale.x += 1.5f; // 📏 Става още по-широк
+                    player.Broadcast(5, "<color=#ff8dfb>You appear even wider than before!</color>");
                     break;
                 case 7:
-                    Timing.RunCoroutine(FlickerModel(player)); // Мигане на модела
+                    scale.y += 1.2f; // 🧠 Огромна глава (Big Head Mode)
+                    player.Broadcast(5, "<color=#ff8dfb>Your head appears gigantic!</color>");
                     break;
                 case 8:
-                    RotateModel(player, new Vector3(20f, 0f, 10f)); // Усукана поза
+                    scale.x += 0.6f; // 👐 Огромни ръце
+                    scale.z += 0.6f;
+                    player.Broadcast(5, "<color=#ff8dfb>Your hands look massive!</color>");
                     break;
                 case 9:
-                    Timing.RunCoroutine(ShakeModel(player)); // Леко трептене
+                    player.GameObject.transform.Rotate(new Vector3(0f, 15f, 10f)); // 🤕 Извита поза
+                    player.Broadcast(5, "<color=#ff8dfb>You appear crooked!</color>");
+                    break;
+                case 10:
+                    scale.y += 1.0f; // 🦵 Гигантски крака
+                    player.Broadcast(5, "<color=#ff8dfb>Your legs seem way too long!</color>");
                     break;
             }
-        }
 
-        private void ScaleModel(Player player, Vector3 scale)
-        {
+            // ✅ Приложи новата форма към играча
             player.GameObject.transform.localScale = scale;
+
+            return scale;
         }
 
-        private void RotateModel(Player player, Vector3 rotation)
+        private void OnPlayerDeath(DyingEventArgs ev)
         {
-            player.GameObject.transform.Rotate(rotation);
-        }
-
-        private IEnumerator<float> FlickerModel(Player player)
-        {
-            Renderer renderer = player.GameObject.GetComponentInChildren<Renderer>();
-            if (renderer == null) yield break;
-
-            for (int i = 0; i < 10; i++)
+            if (PlayerDistortions.ContainsKey(ev.Player))
             {
-                renderer.enabled = false; // Скрива модела
-                yield return Timing.WaitForSeconds(0.2f);
-                renderer.enabled = true; // Показва модела
-                yield return Timing.WaitForSeconds(0.2f);
-            }
-        }
-
-        private IEnumerator<float> ShakeModel(Player player)
-        {
-            for (int i = 0; i < 20; i++)
-            {
-                player.GameObject.transform.position += new Vector3(0.01f, 0f, 0.01f);
-                yield return Timing.WaitForSeconds(0.1f);
-                player.GameObject.transform.position -= new Vector3(0.01f, 0f, 0.01f);
+                ev.Player.GameObject.transform.localScale = Vector3.one; // ✅ Нулирай модела
+                PlayerDistortions.Remove(ev.Player);
             }
         }
     }
