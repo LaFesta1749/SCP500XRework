@@ -14,7 +14,7 @@ namespace SCP500XRework.SCP500Pills
     {
         public override uint Id { get; set; } = 5004;
         public override string Name { get; set; } = "SCP-500-H";
-        public override string Description { get; set; } = "Increases your maximum health permanently for this round.";
+        public override string Description { get; set; } = "Increases your maximum health.";
         public override ItemType Type { get; set; } = ItemType.SCP500;
         public override float Weight { get; set; } = 0.1f;
         public override SpawnProperties SpawnProperties { get; set; } = new();
