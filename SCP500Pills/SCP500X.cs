@@ -1,9 +1,17 @@
 ﻿#nullable disable
 using Exiled.API.Features;
 using Exiled.API.Features.Items;
-using Exiled.API.Features.Spawn;
 using Exiled.CustomItems.API.Features;
 using Exiled.Events.EventArgs.Player;
+using System.Linq;
+using UnityEngine;
+using Exiled.API.Features.Spawn;
+using Exiled.API.Enums;
+using Interactables.Interobjects.DoorUtils;
+using System.Collections.Generic;
+using Exiled.API.Features.Doors;
+using Exiled.API.Extensions;
+using Exiled.API.Interfaces;
 
 namespace SCP500XRework.SCP500Pills
 {
@@ -11,10 +19,12 @@ namespace SCP500XRework.SCP500Pills
     {
         public override uint Id { get; set; } = 5010;
         public override string Name { get; set; } = "SCP-500-X";
-        public override string Description { get; set; } = "Summons a teammate to help you.";
+        public override string Description { get; set; } = "Explodes all nearby doors.";
         public override ItemType Type { get; set; } = ItemType.SCP500;
         public override float Weight { get; set; } = 0.1f;
-        public override SpawnProperties SpawnProperties { get; set; } = new(); // ✅ Поправено
+        public override SpawnProperties SpawnProperties { get; set; } = new();
+
+        private const float ExplosionRadius = 8f; // 📏 Радиус на експлозията
 
         protected override void SubscribeEvents()
         {
@@ -28,18 +38,46 @@ namespace SCP500XRework.SCP500Pills
             Exiled.Events.Handlers.Player.UsingItem -= OnItemUsed;
         }
 
-        private void OnItemUsed(Exiled.Events.EventArgs.Player.UsingItemEventArgs ev)
+        private void OnItemUsed(UsingItemEventArgs ev)
         {
-            if (!Check(ev.Item)) return; // ✅ Проверява дали използваното хапче е правилното!
+            if (!Check(ev.Item)) return;
 
-            ev.Player.Broadcast(5, "You used SCP-500-X! Summoning a teammate...");
-            SummonTeammate(ev.Player);
-            ev.Player.RemoveItem(ev.Item);
+            bool exploded = ExplodeNearbyDoors(ev.Player);
+
+            if (exploded)
+            {
+                ev.Player.Broadcast(5, "<color=red>💥 You destroyed all nearby doors!</color>");
+                ev.Player.RemoveItem(ev.Item);
+            }
+            else
+            {
+                ev.Player.ShowHint("<color=red>❌ No doors nearby to destroy!</color>", 5);
+            }
         }
 
-        private void SummonTeammate(Player player)
+        private bool ExplodeNearbyDoors(Player player)
         {
-            Log.Info($"{player.Nickname} used SCP-500-X, but summoning logic is not implemented yet.");
+            bool anyDoorExploded = false;
+
+            foreach (var door in Door.List.Where(d => Vector3.Distance(player.Position, d.Position) <= ExplosionRadius))
+            {
+                // ❌ Пропускаме вратите "079_FIRST" и "079_SECOND"
+                if (door.Name == "079_FIRST" || door.Name == "079_SECOND")
+                    continue; // ❌ Пропуска и не прилага експлозията
+
+                if (door is Exiled.API.Interfaces.IDamageableDoor damageableDoor) // ✅ Проверка дали вратата може да бъде унищожена
+                {
+                    damageableDoor.Break();
+                    anyDoorExploded = true;
+                }
+                else if (!door.IsOpen && !door.IsLocked) // Ако не може да се счупи, просто я отваряме
+                {
+                    door.IsOpen = true;
+                    anyDoorExploded = true;
+                }
+            }
+
+            return anyDoorExploded;
         }
     }
 }
