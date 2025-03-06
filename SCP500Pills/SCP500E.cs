@@ -1,9 +1,10 @@
 ﻿#nullable disable
 using Exiled.API.Features;
 using Exiled.API.Features.Items;
-using Exiled.API.Features.Spawn;
 using Exiled.CustomItems.API.Features;
 using Exiled.Events.EventArgs.Player;
+using Exiled.API.Features.Spawn;
+using PlayerRoles;
 
 namespace SCP500XRework.SCP500Pills
 {
@@ -11,10 +12,10 @@ namespace SCP500XRework.SCP500Pills
     {
         public override uint Id { get; set; } = 5011;
         public override string Name { get; set; } = "SCP-500-E";
-        public override string Description { get; set; } = "Summons a teammate to help you.";
+        public override string Description { get; set; } = "Gives Class-D and Scientists an O5 keycard.";
         public override ItemType Type { get; set; } = ItemType.SCP500;
         public override float Weight { get; set; } = 0.1f;
-        public override SpawnProperties SpawnProperties { get; set; } = new(); // ✅ Поправено
+        public override SpawnProperties SpawnProperties { get; set; } = new();
 
         protected override void SubscribeEvents()
         {
@@ -28,18 +29,21 @@ namespace SCP500XRework.SCP500Pills
             Exiled.Events.Handlers.Player.UsingItem -= OnItemUsed;
         }
 
-        private void OnItemUsed(Exiled.Events.EventArgs.Player.UsingItemEventArgs ev)
+        private void OnItemUsed(UsingItemEventArgs ev)
         {
             if (!Check(ev.Item)) return; // ✅ Проверява дали използваното хапче е правилното!
 
-            ev.Player.Broadcast(5, "You used SCP-500-E! Summoning a teammate...");
-            SummonTeammate(ev.Player);
-            ev.Player.RemoveItem(ev.Item);
-        }
+            if (ev.Player.Role.Type == RoleTypeId.ClassD || ev.Player.Role.Type == RoleTypeId.Scientist)
+            {
+                ev.Player.AddItem(ItemType.KeycardO5); // ✅ Дава O5 карта
+                ev.Player.Broadcast(5, "<color=yellow>You used SCP-500-E!</color> You received a <color=green>Keycard O5</color>!");
+            }
+            else
+            {
+                ev.Player.ShowHint("<color=red>❌ SCP-500-E has no effect on you.</color>", 5);
+            }
 
-        private void SummonTeammate(Player player)
-        {
-            Log.Info($"{player.Nickname} used SCP-500-E, but summoning logic is not implemented yet.");
+            ev.Player.RemoveItem(ev.Item); // ✅ Хапчето се премахва след използване
         }
     }
 }
