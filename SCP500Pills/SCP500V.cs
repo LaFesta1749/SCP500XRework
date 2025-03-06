@@ -1,9 +1,12 @@
 ﻿#nullable disable
 using Exiled.API.Features;
 using Exiled.API.Features.Items;
-using Exiled.API.Features.Spawn;
 using Exiled.CustomItems.API.Features;
 using Exiled.Events.EventArgs.Player;
+using System.Linq;
+using UnityEngine;
+using Exiled.API.Features.Spawn;
+using Exiled.API.Enums;
 
 namespace SCP500XRework.SCP500Pills
 {
@@ -11,10 +14,13 @@ namespace SCP500XRework.SCP500Pills
     {
         public override uint Id { get; set; } = 5009;
         public override string Name { get; set; } = "SCP-500-V";
-        public override string Description { get; set; } = "Summons a teammate to help you.";
+        public override string Description { get; set; } = "Steals HP from nearby enemies and converts it into AHP.";
         public override ItemType Type { get; set; } = ItemType.SCP500;
         public override float Weight { get; set; } = 0.1f;
-        public override SpawnProperties SpawnProperties { get; set; } = new(); // ✅ Поправено
+        public override SpawnProperties SpawnProperties { get; set; } = new();
+
+        private const float StealRadius = 8f; // 📏 Радиус за крадене на HP
+        private const int HealthToSteal = 10; // ❤️ Колко HP се краде от всеки враг
 
         protected override void SubscribeEvents()
         {
@@ -28,18 +34,42 @@ namespace SCP500XRework.SCP500Pills
             Exiled.Events.Handlers.Player.UsingItem -= OnItemUsed;
         }
 
-        private void OnItemUsed(Exiled.Events.EventArgs.Player.UsingItemEventArgs ev)
+        private void OnItemUsed(UsingItemEventArgs ev)
         {
-            if (!Check(ev.Item)) return; // ✅ Проверява дали използваното хапче е правилното!
+            if (!Check(ev.Item)) return;
 
-            ev.Player.Broadcast(5, "You used SCP-500-V! Summoning a teammate...");
-            SummonTeammate(ev.Player);
-            ev.Player.RemoveItem(ev.Item);
+            int totalStolenHp = StealHealthFromEnemies(ev.Player);
+
+            if (totalStolenHp > 0)
+            {
+                ev.Player.AddAhp(totalStolenHp, totalStolenHp, 0f, 0.7f, 0f, false);
+                ev.Player.Broadcast(5, $"<color=#af0000>You stole {totalStolenHp} HP and converted it into AHP!</color>");
+                ev.Player.RemoveItem(ev.Item);
+            }
+            else
+            {
+                ev.Player.ShowHint("<color=red>❌ No enemies nearby to drain HP from!</color>", 5);
+            }
         }
 
-        private void SummonTeammate(Player player)
+        private int StealHealthFromEnemies(Player user)
         {
-            Log.Info($"{player.Nickname} used SCP-500-V, but summoning logic is not implemented yet.");
+            int totalStolen = 0;
+
+            foreach (Player enemy in Player.List.Where(p => p.Role.Team != user.Role.Team && p.IsAlive))
+            {
+                if (Vector3.Distance(user.Position, enemy.Position) <= StealRadius)
+                {
+                    int stolen = Mathf.Min(HealthToSteal, (int)enemy.Health - 1); // Да не убива веднага
+                    if (stolen > 0)
+                    {
+                        enemy.Health -= stolen;
+                        totalStolen += stolen;
+                        enemy.ShowHint("<color=red>⚠ You feel your life force being drained!</color>", 5);
+                    }
+                }
+            }
+            return totalStolen;
         }
     }
 }
