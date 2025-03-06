@@ -105,7 +105,8 @@ namespace SCP500XRework.SCP500Pills
                     player.Broadcast(5, "<color=#ff8dfb>You appear crooked!</color>");
                     break;
                 case 10:
-                    scale.y += 1.0f; // 🦵 Гигантски крака
+                    scale.y += 0.5f; // 🦵 Гигантски крака
+                    player.Position += Vector3.up * 0.4f; // 📏 Повдига играча, за да не потъне в земята
                     player.Broadcast(5, "<color=#ff8dfb>Your legs seem way too long!</color>");
                     break;
             }
