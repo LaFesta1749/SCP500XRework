@@ -41,6 +41,14 @@ namespace SCP500XRework
             new SCP500V().Register();
             new SCP500X().Register();
             new SCP500Z().Register();
+            new SCP500E().Register();
+            new SCP500F().Register();
+            new SCP500L().Register();
+            new SCP500O().Register();
+            new SCP500P().Register();
+            new SCP500U().Register();
+            new SCP500W().Register();
+            new SCP500Y().Register();
 
             // ✅ Регистрираме event-ите
             Exiled.Events.Handlers.Server.RoundStarted += eventHandlers.OnRoundStart;
