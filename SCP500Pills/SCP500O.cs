@@ -1,9 +1,12 @@
 ﻿#nullable disable
 using Exiled.API.Features;
 using Exiled.API.Features.Items;
-using Exiled.API.Features.Spawn;
 using Exiled.CustomItems.API.Features;
 using Exiled.Events.EventArgs.Player;
+using Exiled.API.Enums;
+using MEC;
+using System.Collections.Generic;
+using Exiled.API.Features.Spawn;
 
 namespace SCP500XRework.SCP500Pills
 {
@@ -11,10 +14,19 @@ namespace SCP500XRework.SCP500Pills
     {
         public override uint Id { get; set; } = 5014;
         public override string Name { get; set; } = "SCP-500-O";
-        public override string Description { get; set; } = "Summons a teammate to help you.";
+        public override string Description { get; set; } = "Applies all SCP-500 effects at once, but weakened.";
         public override ItemType Type { get; set; } = ItemType.SCP500;
         public override float Weight { get; set; } = 0.1f;
-        public override SpawnProperties SpawnProperties { get; set; } = new(); // ✅ Поправено
+        public override SpawnProperties SpawnProperties { get; set; } = new();
+
+        // 📌 Намалена продължителност на ефектите (50%)
+        private const float EffectDuration = 15f;
+
+        // 📌 Намалена интензивност (50%)
+        private const int SpeedIntensity = 10;
+        private const int RegenIntensity = 15;
+        private const int DamageBoostIntensity = 12;
+        private const int JumpBoostIntensity = 8;
 
         protected override void SubscribeEvents()
         {
@@ -28,18 +40,38 @@ namespace SCP500XRework.SCP500Pills
             Exiled.Events.Handlers.Player.UsingItem -= OnItemUsed;
         }
 
-        private void OnItemUsed(Exiled.Events.EventArgs.Player.UsingItemEventArgs ev)
+        private void OnItemUsed(UsingItemEventArgs ev)
         {
-            if (!Check(ev.Item)) return; // ✅ Проверява дали използваното хапче е правилното!
+            if (!Check(ev.Item)) return;
 
-            ev.Player.Broadcast(5, "You used SCP-500-O! Summoning a teammate...");
-            SummonTeammate(ev.Player);
+            ApplyOverdoseEffects(ev.Player);
+            ev.Player.Broadcast(5, "<color=purple>💊 You feel an extreme rush of effects! (SCP-500-O Activated)</color>");
             ev.Player.RemoveItem(ev.Item);
         }
 
-        private void SummonTeammate(Player player)
+        private void ApplyOverdoseEffects(Player player)
         {
-            Log.Info($"{player.Nickname} used SCP-500-O, but summoning logic is not implemented yet.");
+            // ✅ Активира всички ефекти с 50% намалена сила
+            player.EnableEffect(EffectType.MovementBoost, EffectDuration);
+            player.EnableEffect(EffectType.Vitality, EffectDuration);
+            player.EnableEffect(EffectType.DamageReduction, EffectDuration);
+            player.EnableEffect(EffectType.Scp207, EffectDuration);
+            player.EnableEffect(EffectType.BodyshotReduction, EffectDuration);
+
+            // ✅ Променя интензивността им
+            player.ChangeEffectIntensity(EffectType.MovementBoost, (byte)SpeedIntensity);
+            player.ChangeEffectIntensity(EffectType.Vitality, (byte)RegenIntensity);
+            player.ChangeEffectIntensity(EffectType.DamageReduction, (byte)DamageBoostIntensity);
+            player.ChangeEffectIntensity(EffectType.BodyshotReduction, (byte)JumpBoostIntensity);
+
+            // ✅ Автоматично премахване на ефектите след 15 секунди
+            Timing.CallDelayed(EffectDuration, () =>
+            {
+                if (player.IsAlive)
+                {
+                    player.Broadcast(5, "<color=red>💊 The overdose effects have worn off.</color>");
+                }
+            });
         }
     }
 }
