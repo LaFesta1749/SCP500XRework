@@ -1,9 +1,13 @@
 ﻿#nullable disable
 using Exiled.API.Features;
 using Exiled.API.Features.Items;
-using Exiled.API.Features.Spawn;
 using Exiled.CustomItems.API.Features;
 using Exiled.Events.EventArgs.Player;
+using PlayerRoles;
+using Exiled.API.Features.Spawn;
+using MEC;
+using UnityEngine;
+using Exiled.API.Enums;
 
 namespace SCP500XRework.SCP500Pills
 {
@@ -11,10 +15,10 @@ namespace SCP500XRework.SCP500Pills
     {
         public override uint Id { get; set; } = 5018;
         public override string Name { get; set; } = "SCP-500-Z";
-        public override string Description { get; set; } = "Summons a teammate to help you.";
+        public override string Description { get; set; } = "You die and return as an enhanced SCP-049-2.";
         public override ItemType Type { get; set; } = ItemType.SCP500;
         public override float Weight { get; set; } = 0.1f;
-        public override SpawnProperties SpawnProperties { get; set; } = new(); // ✅ Поправено
+        public override SpawnProperties SpawnProperties { get; set; } = new();
 
         protected override void SubscribeEvents()
         {
@@ -28,18 +32,43 @@ namespace SCP500XRework.SCP500Pills
             Exiled.Events.Handlers.Player.UsingItem -= OnItemUsed;
         }
 
-        private void OnItemUsed(Exiled.Events.EventArgs.Player.UsingItemEventArgs ev)
+        private void OnItemUsed(UsingItemEventArgs ev)
         {
-            if (!Check(ev.Item)) return; // ✅ Проверява дали използваното хапче е правилното!
+            if (!Check(ev.Item)) return;
 
-            ev.Player.Broadcast(5, "You used SCP-500-Z! Summoning a teammate...");
-            SummonTeammate(ev.Player);
+            if (ev.Player.Role.Team == Team.SCPs)
+            {
+                ev.Player.ShowHint("<color=red>❌ SCPs cannot use SCP-500-Z!</color>", 5);
+                return;
+            }
+
+            ev.Player.Broadcast(5, "<color=yellow>You consumed SCP-500-Z!</color> You feel... strange...");
+            TransformIntoZombie(ev.Player);
             ev.Player.RemoveItem(ev.Item);
         }
 
-        private void SummonTeammate(Player player)
+        private void TransformIntoZombie(Player player)
         {
-            Log.Info($"{player.Nickname} used SCP-500-Z, but summoning logic is not implemented yet.");
+            Vector3 deathPosition = player.Position; // ✅ Запазваме локацията
+
+            player.Kill("SCP-500-Z Effect"); // 💀 Убиваме играча с custom съобщение
+
+            // ✅ Изчакваме малко и го възраждаме като SCP-049-2
+            Timing.CallDelayed(3f, () =>
+            {
+                if (!player.IsAlive) // Проверяваме дали още е мъртъв
+                {
+                    player.Role.Set(RoleTypeId.Scp0492, Exiled.API.Enums.SpawnReason.Respawn);
+                    player.Position = deathPosition; // ✅ Връщаме го на същото място
+                    player.MaxHealth = 400; // 💪 Повече HP
+                    player.Health = 400;
+                    player.EnableEffect(EffectType.MovementBoost, 999f);
+                    player.ChangeEffectIntensity(EffectType.MovementBoost, 20); // 🚀 По-бърз
+
+                    player.Broadcast(5, "<color=green>🧟 You have resurrected as an enhanced SCP-049-2!</color>");
+                    Log.Info($"{player.Nickname} has transformed into an enhanced SCP-049-2.");
+                }
+            });
         }
     }
 }
