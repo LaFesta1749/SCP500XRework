@@ -3,13 +3,13 @@ using Exiled.API.Features;
 using Exiled.API.Features.Items;
 using Exiled.CustomItems.API.Features;
 using Exiled.Events.EventArgs.Player;
-using MEC;
-using System.Collections.Generic;
-using UnityEngine;
 using Exiled.API.Enums;
-using Exiled.API.Features.Spawn;
+using MEC;
+using UnityEngine;
 using PlayerRoles;
 using PlayerStatsSystem;
+using Exiled.API.Features.Spawn;
+using System.Collections.Generic;
 
 namespace SCP500XRework.SCP500Pills
 {
@@ -17,13 +17,13 @@ namespace SCP500XRework.SCP500Pills
     {
         public override uint Id { get; set; } = 5012;
         public override string Name { get; set; } = "SCP-500-F";
-        public override string Description { get; set; } = "Fake your own death and return after 10 seconds!";
+        public override string Description { get; set; } = "Simulates death, then revives you.";
         public override ItemType Type { get; set; } = ItemType.SCP500;
         public override float Weight { get; set; } = 0.1f;
         public override SpawnProperties SpawnProperties { get; set; } = new();
 
-        private const float FakeDeathDuration = 10f; // ⏳ Колко време ще изглежда мъртъв
-        private const float ReviveHealth = 30f; // ❤️ Колко живот ще има след възраждането
+        private const float FakeDeathDuration = 10f; // ⏳ Време, през което изглежда "мъртъв"
+        private const float ReviveHealth = 50f; // ❤️ Колко живот ще има след възкресение
 
         protected override void SubscribeEvents()
         {
@@ -41,7 +41,7 @@ namespace SCP500XRework.SCP500Pills
         {
             if (!Check(ev.Item)) return;
 
-            ev.Player.Broadcast(5, "<color=yellow>You took SCP-500-F...</color> You feel weak...");
+            ev.Player.Broadcast(5, "<color=yellow>You swallowed SCP-500-F... You feel dizzy.</color>");
             FakeDeath(ev.Player);
             ev.Player.RemoveItem(ev.Item);
         }
@@ -51,20 +51,37 @@ namespace SCP500XRework.SCP500Pills
             Log.Info($"{player.Nickname} has faked their death.");
 
             Vector3 fakeDeathPosition = player.Position; // Запазваме позицията
+            Quaternion fakeDeathRotation = player.GameObject.transform.rotation;
 
-            // ✅ Убиваме играча (ще изглежда мъртъв)
-            player.Kill("SCP-500-F Effect");
-            //Map.Broadcast(5, $"📢 <color=red>{player.Nickname} is down! (Dead Body)</color>");
+            // ✅ Създаваме "мъртво" тяло
+            Ragdoll fakeRagdoll = Ragdoll.CreateAndSpawn(
+                roleType: player.Role.Type,
+                name: player.Nickname, // ✅ Добавяме името на играча
+                damageHandler: new UniversalDamageHandler(0f, DeathTranslations.Poisoned), // Използваме Poisoned като причина за "смърт"
+                position: fakeDeathPosition,
+                rotation: fakeDeathRotation,
+                owner: player
+            );
+
+            // ✅ "Убиваме" играча (деактивираме го)
+            player.IsGodModeEnabled = true; // За да не може да бъде убит наистина
+            player.EnableEffect(EffectType.Invisible, FakeDeathDuration); // ✅ Правим го невидим за другите
+            player.EnableEffect(EffectType.Blinded, FakeDeathDuration); // ✅ Добавяме "замаяност"
+
+            Map.Broadcast(5, $"📢 <color=red>{player.Nickname} is down! (Dead Body)</color>");
 
             // ✅ След 10 секунди го връщаме към живот
-            Timing.CallDelayed(10f, () =>
+            Timing.CallDelayed(FakeDeathDuration, () =>
             {
-                if (!player.IsAlive) // Проверяваме дали още е "мъртъв"
+                if (!player.IsAlive)
                 {
                     player.Role.Set(player.Role.Type, SpawnReason.Respawn);
                     player.Position = fakeDeathPosition; // ✅ Връщаме го на същото място
-                    player.Health = 50; // 🔴 Връщаме го с малко живот
-                    player.EnableEffect(EffectType.Concussed, 5f); // 😵 Замаяност за баланс
+                    player.Health = ReviveHealth; // 🔴 Възкръсва с малко HP
+                    player.DisableAllEffects(); // Премахваме слепотата и другите ефекти
+                    player.IsGodModeEnabled = false; // ✅ Изключваме God Mode
+
+                    fakeRagdoll.Destroy(); // ✅ Премахваме тялото от земята
 
                     player.Broadcast(5, "<color=green>😱 You have returned from the dead!</color>");
                     Map.Broadcast(5, $"😱 <color=yellow>{player.Nickname} has returned from the dead!</color>");
@@ -73,6 +90,5 @@ namespace SCP500XRework.SCP500Pills
                 }
             });
         }
-
     }
 }
