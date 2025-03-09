@@ -12,7 +12,7 @@ namespace SCP500XRework.SCP500Pills
     {
         public override uint Id { get; set; } = 5011;
         public override string Name { get; set; } = "SCP-500-E";
-        public override string Description { get; set; } = "Gives Class-D and Scientists an O5 keycard.";
+        public override string Description { get; set; } = "Gives Class-D and Scientists an item.";
         public override ItemType Type { get; set; } = ItemType.SCP500;
         public override float Weight { get; set; } = 0.1f;
         public override SpawnProperties SpawnProperties { get; set; } = new();
