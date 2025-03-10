@@ -67,7 +67,7 @@ namespace SCP500XRework.SCP500Pills
             player.EnableEffect(EffectType.Invisible, FakeDeathDuration); // ✅ Правим го невидим за другите
             player.EnableEffect(EffectType.Blinded, FakeDeathDuration); // ✅ Добавяме "замаяност"
 
-            Map.Broadcast(5, $"📢 <color=red>{player.Nickname} is down! (Dead Body)</color>");
+            //Map.Broadcast(5, $"📢 <color=red>{player.Nickname} is down! (Dead Body)</color>");
 
             // ✅ След 10 секунди го "възкресяваме"
             Timing.CallDelayed(FakeDeathDuration, () =>
