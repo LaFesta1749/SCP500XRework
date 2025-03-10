@@ -70,6 +70,13 @@ namespace SCP500XRework.SCP500Pills
                 if (player.IsAlive)
                 {
                     player.Broadcast(5, "<color=red>💊 The overdose effects have worn off.</color>");
+
+                    // ❌ Изрично премахваме ефектите
+                    player.DisableEffect(EffectType.MovementBoost);
+                    player.DisableEffect(EffectType.Vitality);
+                    player.DisableEffect(EffectType.DamageReduction);
+                    player.DisableEffect(EffectType.Scp207);
+                    player.DisableEffect(EffectType.BodyshotReduction);
                 }
             });
         }
