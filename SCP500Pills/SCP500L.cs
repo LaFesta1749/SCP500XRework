@@ -60,6 +60,10 @@ namespace SCP500XRework.SCP500Pills
                 if (player.IsAlive)
                 {
                     player.Broadcast(5, "<color=red>🍀 Your luck has run out. Effects have worn off.</color>");
+
+                    // ❌ Изрично премахваме ефектите
+                    player.DisableEffect(EffectType.Vitality);
+                    player.DisableEffect(EffectType.MovementBoost);
                 }
             });
         }
