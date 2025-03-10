@@ -78,8 +78,15 @@ namespace SCP500XRework.SCP500Pills
                     player.Role.Set(player.Role.Type, SpawnReason.Respawn);
                     player.Position = fakeDeathPosition; // ✅ Връщаме го на същото място
                     player.Health = ReviveHealth; // 🔴 Възкръсва с малко HP
-                    player.DisableAllEffects(); // Премахваме слепотата и другите ефекти
                     player.IsGodModeEnabled = false; // ✅ Изключваме God Mode
+
+                    // 🔄 Изчистване на ефектите и оправяне на черния екран
+                    Timing.CallDelayed(0.5f, () =>
+                    {
+                        player.DisableEffect(EffectType.Blinded);
+                        player.DisableEffect(EffectType.Invisible);
+                        player.DisableAllEffects();
+                    });
 
                     fakeRagdoll.Destroy(); // ✅ Премахваме тялото от земята
 
