@@ -70,6 +70,16 @@ namespace SCP500XRework.SCP500Pills
             player.Broadcast(5, $"<color=yellow>💊 You received an unstable effect: {chosenEffect}!</color>");
 
             Log.Info($"{player.Nickname} received the {chosenEffect} effect from SCP-500-U.");
+
+            // ✅ Автоматично премахване на ефекта след 15 секунди
+            Timing.CallDelayed(EffectDuration, () =>
+            {
+                if (player.IsAlive)
+                {
+                    player.DisableEffect(chosenEffect);
+                    player.Broadcast(5, "<color=red>💊 The unstable effect has worn off.</color>");
+                }
+            });
         }
     }
 }
