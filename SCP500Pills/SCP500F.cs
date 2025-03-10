@@ -22,7 +22,7 @@ namespace SCP500XRework.SCP500Pills
         public override float Weight { get; set; } = 0.1f;
         public override SpawnProperties SpawnProperties { get; set; } = new();
 
-        private const float FakeDeathDuration = 10f; // ⏳ Време, през което изглежда "мъртъв"
+        private const float FakeDeathDuration = 20f; // ⏳ Време, през което изглежда "мъртъв"
         private const float ReviveHealth = 50f; // ❤️ Колко живот ще има след възкресение
 
         protected override void SubscribeEvents()
@@ -66,8 +66,6 @@ namespace SCP500XRework.SCP500Pills
             // ✅ Правим играча "мъртъв", но всъщност е жив
             player.EnableEffect(EffectType.Invisible, FakeDeathDuration); // ✅ Правим го невидим за другите
             player.EnableEffect(EffectType.Blinded, FakeDeathDuration); // ✅ Добавяме "замаяност"
-            player.IsGodModeEnabled = true; // ✅ Правим го неуязвим за времето на фалшивата смърт
-            player.IsIntercomMuted = true; // ✅ Заглушаваме гласа му, за да не издаде, че е жив
 
             Map.Broadcast(5, $"📢 <color=red>{player.Nickname} is down! (Dead Body)</color>");
 
@@ -77,15 +75,13 @@ namespace SCP500XRework.SCP500Pills
                 player.DisableEffect(EffectType.Blinded);
                 player.DisableEffect(EffectType.Invisible);
                 player.DisableAllEffects();
-                player.IsGodModeEnabled = false; // ✅ Вече може да бъде убит
-                player.IsIntercomMuted = false; // ✅ Връщаме гласа му
 
                 // ✅ Принудително нулиране на камерата (използва се за оправяне на черния екран)
                 player.Teleport(fakeDeathPosition);
 
                 fakeRagdoll.Destroy(); // ✅ Премахваме тялото от земята
 
-                player.Broadcast(5, "<color=green>😱 You have returned from the dead!</color>");
+                //player.Broadcast(5, "<color=green>😱 You have returned from the dead!</color>");
                 Map.Broadcast(5, $"😱 <color=yellow>{player.Nickname} has returned from the dead!</color>");
 
                 Log.Info($"{player.Nickname} has revived after faking death.");
