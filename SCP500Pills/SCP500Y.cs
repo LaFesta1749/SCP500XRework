@@ -75,6 +75,15 @@ namespace SCP500XRework.SCP500Pills
                     ? $"<color=green>✅ You feel empowered! ({effect})</color>"
                     : $"<color=red>⚠ Something feels wrong... ({effect})</color>");
 
+                // ✅ Гарантирано премахване на ефекта след 5 секунди
+                Timing.CallDelayed(CycleDuration, () =>
+                {
+                    if (player.IsAlive)
+                    {
+                        player.DisableEffect(effect);
+                    }
+                });
+
                 yield return Timing.WaitForSeconds(CycleDuration);
             }
         }
