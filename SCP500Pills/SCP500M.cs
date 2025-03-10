@@ -3,10 +3,10 @@ using Exiled.API.Features;
 using Exiled.API.Features.Items;
 using Exiled.CustomItems.API.Features;
 using Exiled.Events.EventArgs.Player;
+using Exiled.API.Extensions;
 using System.Collections.Generic;
 using UnityEngine;
 using Exiled.API.Features.Spawn;
-using Exiled.API.Extensions;
 
 namespace SCP500XRework.SCP500Pills
 {
@@ -19,14 +19,14 @@ namespace SCP500XRework.SCP500Pills
         public override float Weight { get; set; } = 0.1f;
         public override SpawnProperties SpawnProperties { get; set; } = new();
 
-        // Запазваме текущите промени на играчите
-        private static readonly Dictionary<Player, Vector3> PlayerDistortions = new();
+        // 🔹 Съхраняваме оригиналните модели на играчите, за да ги възстановим при нужда
+        private static readonly Dictionary<Player, Vector3> OriginalScales = new();
 
         protected override void SubscribeEvents()
         {
             base.SubscribeEvents();
             Exiled.Events.Handlers.Player.UsingItem += OnItemUsed;
-            Exiled.Events.Handlers.Player.Dying += OnPlayerDeath; // Изчистване на ефекта при смърт
+            Exiled.Events.Handlers.Player.Dying += OnPlayerDeath; // Връщаме модела при смърт
         }
 
         protected override void UnsubscribeEvents()
@@ -40,20 +40,29 @@ namespace SCP500XRework.SCP500Pills
         {
             if (!Check(ev.Item)) return;
 
-            Vector3 currentScale = PlayerDistortions.ContainsKey(ev.Player)
-                ? PlayerDistortions[ev.Player]
-                : ev.Player.Scale; // Използва се `Scale`, който работи с MirrorExtended
+            // ✅ Премахваме старото изкривяване, ако има такова
+            if (OriginalScales.ContainsKey(ev.Player))
+            {
+                ev.Player.Scale = OriginalScales[ev.Player]; // Връщаме стария модел
+            }
+            else
+            {
+                OriginalScales[ev.Player] = ev.Player.Scale; // Запазваме оригиналния модел
+            }
 
-            Vector3 newScale = ApplyDistortion(ev.Player, currentScale);
-            PlayerDistortions[ev.Player] = newScale;
+            // ✅ Приложи новото изкривяване
+            Vector3 newScale = ApplyDistortion(ev.Player);
+            ev.Player.Scale = newScale;
 
-            ev.Player.Broadcast(3, "<color=#ff8dfb>You used SCP-500-M!</color> Your appearance has changed...");
+            ev.Player.Broadcast(3, "<color=#ff8dfb>You used SCP-500-M! Your appearance has changed...</color>");
             ev.Player.RemoveItem(ev.Item);
         }
 
-        private Vector3 ApplyDistortion(Player player, Vector3 scale)
+        private Vector3 ApplyDistortion(Player player)
         {
-            int distortionType = UnityEngine.Random.Range(0, 6); // Избира един от 6 ефекта
+            Vector3 scale = OriginalScales[player]; // Взимаме оригиналния модел
+
+            int distortionType = UnityEngine.Random.Range(0, 6); // 6 различни модификации
 
             switch (distortionType)
             {
@@ -66,36 +75,32 @@ namespace SCP500XRework.SCP500Pills
                     player.Broadcast(5, "<color=#ff8dfb>You appear to be facing backwards!</color>");
                     break;
                 case 2:
-                    scale.z *= 0.05f; // Хартиен модел (много тънък)
+                    scale.z = 0.05f; // Хартиен модел (много тънък)
                     player.Broadcast(5, "<color=#ff8dfb>You appear paper thin!</color>");
                     break;
                 case 3:
-                    scale.x += 1f; // Разширен
+                    scale.x = 1.5f; // Разширен модел
                     player.Broadcast(5, "<color=#ff8dfb>You appear wider!</color>");
                     break;
                 case 4:
-                    scale.y += 0.5f; // По-висок
-                    player.Position += Vector3.up * 0.3f; // Компенсира височината, за да не падне под картата
+                    scale.y = 1.2f; // По-висок модел
                     player.Broadcast(5, "<color=#ff8dfb>You appear taller!</color>");
                     break;
                 case 5:
-                    scale.x += 1.5f; // Още по-широк
-                    player.Broadcast(5, "<color=#ff8dfb>You appear even wider than before!</color>");
+                    scale.y = 0.8f; // Клекнал модел
+                    player.Broadcast(5, "<color=#ff8dfb>You appear squashed!</color>");
                     break;
             }
-
-            // Използваме MirrorExtended за безопасно прилагане на скалирането
-            player.Scale = scale;
 
             return scale;
         }
 
         private void OnPlayerDeath(DyingEventArgs ev)
         {
-            if (PlayerDistortions.ContainsKey(ev.Player))
+            if (OriginalScales.ContainsKey(ev.Player))
             {
-                ev.Player.Scale = Vector3.one; // Възстановява нормалния модел
-                PlayerDistortions.Remove(ev.Player);
+                ev.Player.Scale = OriginalScales[ev.Player]; // Възстановяваме нормалния модел
+                OriginalScales.Remove(ev.Player);
             }
         }
     }
