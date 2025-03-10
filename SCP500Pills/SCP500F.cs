@@ -63,38 +63,32 @@ namespace SCP500XRework.SCP500Pills
                 owner: player
             );
 
-            // ✅ "Убиваме" играча (деактивираме го)
-            player.IsGodModeEnabled = true; // За да не може да бъде убит наистина
+            // ✅ Правим играча "мъртъв", но всъщност е жив
             player.EnableEffect(EffectType.Invisible, FakeDeathDuration); // ✅ Правим го невидим за другите
             player.EnableEffect(EffectType.Blinded, FakeDeathDuration); // ✅ Добавяме "замаяност"
+            player.IsGodModeEnabled = true; // ✅ Правим го неуязвим за времето на фалшивата смърт
+            player.IsIntercomMuted = true; // ✅ Заглушаваме гласа му, за да не издаде, че е жив
 
             Map.Broadcast(5, $"📢 <color=red>{player.Nickname} is down! (Dead Body)</color>");
 
-            // ✅ След 10 секунди го връщаме към живот
+            // ✅ След 10 секунди го "възкресяваме"
             Timing.CallDelayed(FakeDeathDuration, () =>
             {
-                if (!player.IsAlive)
-                {
-                    player.Role.Set(player.Role.Type, SpawnReason.Respawn);
-                    player.Position = fakeDeathPosition; // ✅ Връщаме го на същото място
-                    player.Health = ReviveHealth; // 🔴 Възкръсва с малко HP
-                    player.IsGodModeEnabled = false; // ✅ Изключваме God Mode
+                player.DisableEffect(EffectType.Blinded);
+                player.DisableEffect(EffectType.Invisible);
+                player.DisableAllEffects();
+                player.IsGodModeEnabled = false; // ✅ Вече може да бъде убит
+                player.IsIntercomMuted = false; // ✅ Връщаме гласа му
 
-                    // 🔄 Изчистване на ефектите и оправяне на черния екран
-                    Timing.CallDelayed(0.5f, () =>
-                    {
-                        player.DisableEffect(EffectType.Blinded);
-                        player.DisableEffect(EffectType.Invisible);
-                        player.DisableAllEffects();
-                    });
+                // ✅ Принудително нулиране на камерата (използва се за оправяне на черния екран)
+                player.Teleport(fakeDeathPosition);
 
-                    fakeRagdoll.Destroy(); // ✅ Премахваме тялото от земята
+                fakeRagdoll.Destroy(); // ✅ Премахваме тялото от земята
 
-                    player.Broadcast(5, "<color=green>😱 You have returned from the dead!</color>");
-                    Map.Broadcast(5, $"😱 <color=yellow>{player.Nickname} has returned from the dead!</color>");
+                player.Broadcast(5, "<color=green>😱 You have returned from the dead!</color>");
+                Map.Broadcast(5, $"😱 <color=yellow>{player.Nickname} has returned from the dead!</color>");
 
-                    Log.Info($"{player.Nickname} has revived after faking death.");
-                }
+                Log.Info($"{player.Nickname} has revived after faking death.");
             });
         }
     }
