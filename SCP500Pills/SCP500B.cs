@@ -98,6 +98,9 @@ namespace SCP500XRework.SCP500Pills
             // ✅ Връщаме играча на същото място след смяната
             Timing.CallDelayed(0.1f, () => player.Position = currentPosition);
 
+            // ✅ Премахваме Spawn Protection веднага след смяната на ролята
+            player.DisableEffect(EffectType.SpawnProtected);
+
             player.ShowHint($"✨ You have transformed into a {newRole}!", 5);
             Log.Info($"{player.Nickname} used SCP-500-B and swapped to {newRole}.");
         }
