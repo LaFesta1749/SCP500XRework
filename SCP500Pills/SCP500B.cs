@@ -87,21 +87,10 @@ namespace SCP500XRework.SCP500Pills
             }
 
             // ✅ Drop-ваме всички предмети на земята преди смяната на ролята
-            //foreach (var invItem in player.Inventory.UserInventory.Items.Values)
-            //{
-            //    Item spawnedItem = Item.Create(invItem.ItemTypeId); // Създава предмета
-            //    if (spawnedItem != null)
-            //    {
-            //        spawnedItem.CreateAndSpawn(player.Position); // Спавнва предмета на позицията на играча
-            //    }
-            //}
-
-            // ✅ Изчистваме инвентара след drop
-            player.ClearInventory();
-
-
-            // ✅ Изчистваме инвентара след drop
-            player.ClearInventory();
+            foreach (var item in player.Items.ToList()) // Взима всички предмети
+            {
+                player.DropItem(item); // Дропва предмета
+            }
 
             // ✅ Смяна на отбора
             player.RoleManager.ServerSetRole(newRole, RoleChangeReason.RemoteAdmin);
