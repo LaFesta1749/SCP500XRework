@@ -49,7 +49,10 @@ namespace SCP500XRework.SCP500Pills
             if (!Check(ev.Item)) return;
 
             // 🚫 Проверяваме дали играчът е в асансьор или Pocket Dimension
-            if (ev.Player.CurrentRoom.Type == RoomType.Pocket)
+            if (ev.Player.CurrentRoom.Type == RoomType.Pocket ||
+                ev.Player.CurrentRoom.Type == RoomType.HczElevatorA ||
+                ev.Player.CurrentRoom.Type == RoomType.HczElevatorB ||
+                ev.Player.Lift != null) // ✅ Проверяваме дали играчът е в асансьор
             {
                 ev.Player.ShowHint("<color=red>You cannot use this pill here!</color>", 3);
                 ev.IsAllowed = false;

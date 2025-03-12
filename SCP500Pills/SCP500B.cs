@@ -38,7 +38,10 @@ namespace SCP500XRework.SCP500Pills
             if (!Check(ev.Item)) return;
 
             // 🚫 Проверяваме дали играчът е в асансьор или Pocket Dimension
-            if (ev.Player.CurrentRoom.Type == RoomType.Pocket)
+            if (ev.Player.CurrentRoom.Type == RoomType.Pocket ||
+                ev.Player.CurrentRoom.Type == RoomType.HczElevatorA ||
+                ev.Player.CurrentRoom.Type == RoomType.HczElevatorB ||
+                ev.Player.Lift != null) // ✅ Проверяваме дали играчът е в асансьор
             {
                 ev.Player.ShowHint("<color=red>You cannot use this pill here!</color>", 3);
                 ev.IsAllowed = false;
@@ -82,6 +85,23 @@ namespace SCP500XRework.SCP500Pills
                 player.ShowHint("⚠ Your team cannot be swapped!", 5);
                 return;
             }
+
+            // ✅ Drop-ваме всички предмети на земята преди смяната на ролята
+            //foreach (var invItem in player.Inventory.UserInventory.Items.Values)
+            //{
+            //    Item spawnedItem = Item.Create(invItem.ItemTypeId); // Създава предмета
+            //    if (spawnedItem != null)
+            //    {
+            //        spawnedItem.CreateAndSpawn(player.Position); // Спавнва предмета на позицията на играча
+            //    }
+            //}
+
+            // ✅ Изчистваме инвентара след drop
+            player.ClearInventory();
+
+
+            // ✅ Изчистваме инвентара след drop
+            player.ClearInventory();
 
             // ✅ Смяна на отбора
             player.RoleManager.ServerSetRole(newRole, RoleChangeReason.RemoteAdmin);
