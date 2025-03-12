@@ -5,6 +5,7 @@ using Exiled.CustomItems.API.Features;
 using Exiled.Events.EventArgs.Player;
 using Exiled.API.Features.Spawn;
 using PlayerRoles;
+using Exiled.API.Enums;
 
 namespace SCP500XRework.SCP500Pills
 {
@@ -32,6 +33,14 @@ namespace SCP500XRework.SCP500Pills
         private void OnItemUsed(UsingItemEventArgs ev)
         {
             if (!Check(ev.Item)) return; // ✅ Проверява дали използваното хапче е правилното!
+
+            // 🚫 Проверяваме дали играчът е в асансьор или Pocket Dimension
+            if (ev.Player.CurrentRoom.Type == RoomType.Pocket)
+            {
+                ev.Player.ShowHint("<color=red>You cannot use this pill here!</color>", 3);
+                ev.IsAllowed = false;
+                return;
+            }
 
             if (ev.Player.Role.Type == RoleTypeId.ClassD || ev.Player.Role.Type == RoleTypeId.Scientist)
             {

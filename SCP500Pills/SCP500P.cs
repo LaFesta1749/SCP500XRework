@@ -1,4 +1,5 @@
 ﻿#nullable disable
+using Exiled.API.Enums;
 using Exiled.API.Features;
 using Exiled.API.Features.Items;
 using Exiled.API.Features.Spawn;
@@ -39,6 +40,14 @@ namespace SCP500XRework.SCP500Pills
         private void OnItemUsed(UsingItemEventArgs ev)
         {
             if (!Check(ev.Item)) return;
+
+            // 🚫 Проверяваме дали играчът е в асансьор или Pocket Dimension
+            if (ev.Player.CurrentRoom.Type == RoomType.Pocket)
+            {
+                ev.Player.ShowHint("<color=red>You cannot use this pill here!</color>", 3);
+                ev.IsAllowed = false;
+                return;
+            }
 
             ActivatePowerMode(ev.Player);
             ev.Player.Broadcast(5, "<color=yellow>💪 You feel an immense surge of strength!</color>");

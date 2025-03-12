@@ -9,6 +9,7 @@ using MEC;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Exiled.API.Enums;
 
 namespace SCP500XRework.SCP500Pills
 {
@@ -41,6 +42,14 @@ namespace SCP500XRework.SCP500Pills
         private void OnItemUsed(UsingItemEventArgs ev)
         {
             if (!Check(ev.Item)) return;
+
+            // 🚫 Проверяваме дали играчът е в асансьор или Pocket Dimension
+            if (ev.Player.CurrentRoom.Type == RoomType.Pocket)
+            {
+                ev.Player.ShowHint("<color=red>You cannot use this pill here!</color>", 3);
+                ev.IsAllowed = false;
+                return;
+            }
 
             ev.Player.Broadcast(5, "<color=yellow>You used SCP-500-W!</color> Nearby doors are going wild!");
             ev.Player.RemoveItem(ev.Item);

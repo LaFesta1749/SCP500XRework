@@ -1,12 +1,16 @@
 ﻿#nullable disable
 using Exiled.API.Features;
 using Exiled.API.Features.Items;
+using Exiled.API.Features.Components;
+using System.Linq;
 using Exiled.CustomItems.API.Features;
 using Exiled.Events.EventArgs.Player;
 using Exiled.API.Extensions;
 using System.Collections.Generic;
 using UnityEngine;
 using Exiled.API.Features.Spawn;
+using Exiled.API.Enums;
+using Interactables.Interobjects;
 
 namespace SCP500XRework.SCP500Pills
 {
@@ -39,6 +43,14 @@ namespace SCP500XRework.SCP500Pills
         private void OnItemUsed(UsingItemEventArgs ev)
         {
             if (!Check(ev.Item)) return;
+
+            // 🚫 Проверяваме дали играчът е в асансьор или Pocket Dimension
+            if (ev.Player.CurrentRoom.Type == RoomType.Pocket)
+            {
+                ev.Player.ShowHint("<color=red>You cannot use this pill here!</color>", 3);
+                ev.IsAllowed = false;
+                return;
+            }
 
             // ✅ Премахваме старото изкривяване, ако има такова
             if (OriginalScales.ContainsKey(ev.Player))

@@ -39,6 +39,14 @@ namespace SCP500XRework.SCP500Pills
         {
             if (!Check(ev.Item)) return;
 
+            // 🚫 Проверяваме дали играчът е в асансьор или Pocket Dimension
+            if (ev.Player.CurrentRoom.Type == RoomType.Pocket)
+            {
+                ev.Player.ShowHint("<color=red>You cannot use this pill here!</color>", 3);
+                ev.IsAllowed = false;
+                return;
+            }
+
             bool isBoost = rng.NextDouble() <= 0.7; // 70% шанс за ускорение, 30% шанс за забавяне
             byte intensity = isBoost ? (byte)rng.Next(70, 201) : (byte)rng.Next(10, 40); // 70-200 boost, 10-40 slow
 

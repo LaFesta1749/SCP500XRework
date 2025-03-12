@@ -14,7 +14,10 @@
 
   <ItemGroup>
     <Reference Include="0Harmony">
-      <HintPath>E:\Depedancies\0Harmony.dll</HintPath>
+      <HintPath>..\..\..\Desktop\SCP-Dependancies\All\0Harmony.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>..\..\..\Desktop\SCP-Dependancies\All\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
     <Reference Include="CommandSystem.Core">
       <HintPath>E:\Depedancies\CommandSystem.Core.dll</HintPath>
@@ -41,34 +44,25 @@
       <HintPath>E:\Depedancies\Exiled.Permissions.dll</HintPath>
     </Reference>
     <Reference Include="MapEditorReborn">
-      <HintPath>E:\Depedancies\MapEditorReborn.dll</HintPath>
-    </Reference>
-    <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>E:\Depedancies\MEC.dll</HintPath>
+      <HintPath>..\..\..\Desktop\SCP-Dependancies\All\MapEditorReborn.dll</HintPath>
     </Reference>
     <Reference Include="Mirror">
-      <HintPath>E:\Depedancies\Mirror.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>E:\Depedancies\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\..\Desktop\SCP-Dependancies\All\Mirror.dll</HintPath>
     </Reference>
     <Reference Include="NorthwoodLib">
       <HintPath>E:\Depedancies\NorthwoodLib.dll</HintPath>
     </Reference>
     <Reference Include="Pooling">
-      <HintPath>E:\Depedancies\Pooling.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEditor">
-      <HintPath>E:\Depedancies\UnityEditor.dll</HintPath>
+      <HintPath>..\..\..\Desktop\SCP-Dependancies\All\Pooling.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>E:\Depedancies\UnityEngine.dll</HintPath>
+      <HintPath>..\..\..\Desktop\SCP-Dependancies\All\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>E:\Depedancies\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>..\..\..\Desktop\SCP-Dependancies\All\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.PhysicsModule">
-      <HintPath>E:\Depedancies\UnityEngine.PhysicsModule.dll</HintPath>
+      <HintPath>..\..\..\Desktop\SCP-Dependancies\All\UnityEngine.PhysicsModule.dll</HintPath>
     </Reference>
     <Reference Include="YamlDotNet">
       <HintPath>E:\Depedancies\YamlDotNet.dll</HintPath>

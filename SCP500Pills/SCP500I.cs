@@ -40,6 +40,14 @@ namespace SCP500XRework.SCP500Pills
         {
             if (!Check(ev.Item)) return; // ✅ Проверява дали използваното хапче е SCP-500-I
 
+            // 🚫 Проверяваме дали играчът е в асансьор или Pocket Dimension
+            if (ev.Player.CurrentRoom.Type == RoomType.Pocket)
+            {
+                ev.Player.ShowHint("<color=red>You cannot use this pill here!</color>", 3);
+                ev.IsAllowed = false;
+                return;
+            }
+
             ev.Player.Broadcast(5, "<color=yellow>You used SCP-500-I!</color> You are now invisible for 8 seconds!");
             ev.Player.EnableEffect(EffectType.Invisible, InvisibilityDuration);
 
