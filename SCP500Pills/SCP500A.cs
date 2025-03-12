@@ -73,6 +73,9 @@ namespace SCP500XRework.SCP500Pills
             selectedPlayer.Role.Set(newRole, SpawnReason.ForceClass);
             selectedPlayer.Position = respawnPosition;
 
+            // ✅ Премахваме Spawn Protection веднага след възкресение
+            selectedPlayer.DisableEffect(EffectType.SpawnProtected);
+
             selectedPlayer.ShowHint($"✨ You have been revived as {newRole}!", 5);
             Log.Info($"{selectedPlayer.Nickname} has been resurrected as {newRole} at {respawnPosition}.");
 
