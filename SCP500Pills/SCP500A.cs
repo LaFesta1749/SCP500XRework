@@ -65,7 +65,7 @@ namespace SCP500XRework.SCP500Pills
             if (deadPlayers.Count == 0) return false; // ❌ Няма мъртви играчи
 
             Player selectedPlayer = deadPlayers[UnityEngine.Random.Range(0, deadPlayers.Count)];
-            RoleTypeId newRole = GetResurrectedRole(user);
+            RoleTypeId newRole = GetResurrectedRole(user); // 🛠️ ВЗЕМАМЕ РОЛЯ НА БАЗА НА ТОЗИ, КОЙТО ИЗПОЛЗВА ХАПЧЕТО
 
             // ✅ Запазваме текущата позиция
             Vector3 respawnPosition = user.Position;
@@ -84,6 +84,7 @@ namespace SCP500XRework.SCP500Pills
 
         private RoleTypeId GetResurrectedRole(Player user)
         {
+            // 🔄 ВЗЕМАМЕ РОЛЯ НА БАЗА НА ИГРАЧА, КОЙТО ИЗПОЛЗВА ХАПЧЕТО (НЕ НА МЪРТВИЯ)
             return user.Role.Type switch
             {
                 RoleTypeId.ClassD => GetRandomRole(RoleTypeId.ChaosRifleman, RoleTypeId.ChaosConscript, RoleTypeId.ChaosMarauder, RoleTypeId.ChaosRepressor),
