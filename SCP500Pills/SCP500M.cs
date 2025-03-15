@@ -94,7 +94,7 @@ namespace SCP500XRework.SCP500Pills
                     player.Broadcast(5, "<color=#ff8dfb>You appear paper thin!</color>");
                     break;
                 case 3:
-                    scale.x = 1.5f; // Разширен модел
+                    scale.x = 1.3f; // Разширен модел
                     player.Broadcast(5, "<color=#ff8dfb>You appear wider!</color>");
                     break;
                 case 4:
