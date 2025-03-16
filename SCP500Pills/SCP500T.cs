@@ -70,7 +70,12 @@ namespace SCP500XRework.SCP500Pills
         {
             if (!player.IsAlive) return; // 🚫 Ако играчът е умрял през това време, не правим нищо
 
-            var validRooms = Room.List.Where(room => AllowedZones.Contains(room.Zone)).ToList();
+            var validRooms = Room.List
+                .Where(room => AllowedZones.Contains(room.Zone) &&
+                               room.Type != RoomType.EzCollapsedTunnel &&
+                               room.Type != RoomType.EzShelter)
+                .ToList();
+
             if (validRooms.Count == 0)
             {
                 Log.Warn("No valid teleport locations found!");
