@@ -41,21 +41,11 @@ namespace SCP500XRework
 
         private void SpawnPill(string pillName, Vector3 position)
         {
-            uint pillId = pillName switch
+            if (!TryGetPillId(pillName, out uint pillId))
             {
-                "SCP-500-A" => 5000,
-                "SCP-500-B" => 5001,
-                "SCP-500-C" => 5002,
-                "SCP-500-D" => 5003,
-                "SCP-500-H" => 5004,
-                "SCP-500-I" => 5005,
-                "SCP-500-M" => 5006,
-                "SCP-500-S" => 5007,
-                "SCP-500-T" => 5008,
-                "SCP-500-V" => 5009,
-                "SCP-500-X" => 5010,
-                _ => 5000
-            };
+                Log.Warn($"Pill type '{pillName}' is not recognized and will not be spawned.");
+                return;
+            }
 
             if (!CustomItem.TryGet(pillId, out CustomItem? baseItem))
             {
@@ -63,18 +53,10 @@ namespace SCP500XRework
                 return;
             }
 
-            #pragma warning disable CS8602 // Dereference of a possibly null reference.
-            Pickup? spawnedPill = baseItem.Spawn(position);
-            #pragma warning restore CS8602 // Dereference of a possibly null reference.
+            Pickup? spawnedPill = baseItem!.Spawn(position);
             if (spawnedPill == null)
             {
                 Log.Warn($"Failed to spawn SCP-500 pill at {position}.");
-                return;
-            }
-
-            if (spawnedPill == null)
-            {
-                Log.Warn($"Failed to spawn pill {pillName} at {position}.");
                 return;
             }
 
@@ -125,6 +107,33 @@ namespace SCP500XRework
                 "SCP-500-V" => Color.magenta,
                 "SCP-500-X" => new Color(0.55f, 0.27f, 0.07f),
                 _ => Color.white
+            };
+        }
+        private bool TryGetPillId(string pillName, out uint id)
+        {
+            return pillName switch
+            {
+                "SCP-500-A" => (id = 5000) > 0,
+                "SCP-500-B" => (id = 5001) > 0,
+                "SCP-500-C" => (id = 5002) > 0,
+                "SCP-500-D" => (id = 5003) > 0,
+                "SCP-500-E" => (id = 5011) > 0,
+                "SCP-500-F" => (id = 5012) > 0,
+                "SCP-500-H" => (id = 5004) > 0,
+                "SCP-500-I" => (id = 5005) > 0,
+                "SCP-500-L" => (id = 5013) > 0,
+                "SCP-500-M" => (id = 5006) > 0,
+                "SCP-500-O" => (id = 5014) > 0,
+                "SCP-500-P" => (id = 5019) > 0,
+                "SCP-500-S" => (id = 5007) > 0,
+                "SCP-500-T" => (id = 5008) > 0,
+                "SCP-500-U" => (id = 5015) > 0,
+                "SCP-500-V" => (id = 5009) > 0,
+                "SCP-500-W" => (id = 5016) > 0,
+                "SCP-500-X" => (id = 5010) > 0,
+                "SCP-500-Y" => (id = 5017) > 0,
+                "SCP-500-Z" => (id = 5018) > 0,
+                _ => (id = 0) > 1 // false
             };
         }
     }
