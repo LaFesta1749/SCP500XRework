@@ -88,11 +88,12 @@ namespace SCP500XRework.SCP500Pills
             return user.Role.Type switch
             {
                 RoleTypeId.ClassD => GetRandomRole(RoleTypeId.ChaosRifleman, RoleTypeId.ChaosConscript, RoleTypeId.ChaosMarauder, RoleTypeId.ChaosRepressor),
-                RoleTypeId.Scientist => GetRandomRole(RoleTypeId.NtfCaptain, RoleTypeId.NtfSergeant, RoleTypeId.NtfPrivate),
-                RoleTypeId.FacilityGuard => GetRandomRole(RoleTypeId.NtfCaptain, RoleTypeId.NtfSergeant, RoleTypeId.NtfPrivate),
-                RoleTypeId.NtfPrivate => GetRandomRole(RoleTypeId.NtfCaptain, RoleTypeId.NtfSergeant, RoleTypeId.NtfPrivate),
-                RoleTypeId.NtfSergeant => GetRandomRole(RoleTypeId.NtfCaptain, RoleTypeId.NtfSergeant, RoleTypeId.NtfPrivate),
-                RoleTypeId.NtfCaptain => GetRandomRole(RoleTypeId.NtfCaptain, RoleTypeId.NtfSergeant, RoleTypeId.NtfPrivate),
+                RoleTypeId.Scientist => GetRandomRole(RoleTypeId.NtfCaptain, RoleTypeId.NtfSergeant, RoleTypeId.NtfPrivate, RoleTypeId.NtfSpecialist),
+                RoleTypeId.FacilityGuard => GetRandomRole(RoleTypeId.NtfCaptain, RoleTypeId.NtfSergeant, RoleTypeId.NtfPrivate, RoleTypeId.NtfSpecialist),
+                RoleTypeId.NtfPrivate => GetRandomRole(RoleTypeId.NtfCaptain, RoleTypeId.NtfSergeant, RoleTypeId.NtfPrivate, RoleTypeId.NtfSpecialist),
+                RoleTypeId.NtfSergeant => GetRandomRole(RoleTypeId.NtfCaptain, RoleTypeId.NtfSergeant, RoleTypeId.NtfPrivate, RoleTypeId.NtfSpecialist),
+                RoleTypeId.NtfCaptain => GetRandomRole(RoleTypeId.NtfCaptain, RoleTypeId.NtfSergeant, RoleTypeId.NtfPrivate, RoleTypeId.NtfSpecialist),
+                RoleTypeId.NtfSpecialist => GetRandomRole(RoleTypeId.NtfCaptain, RoleTypeId.NtfSergeant, RoleTypeId.NtfPrivate, RoleTypeId.NtfSpecialist),
                 RoleTypeId.ChaosRifleman => GetRandomRole(RoleTypeId.ChaosRifleman, RoleTypeId.ChaosConscript, RoleTypeId.ChaosMarauder, RoleTypeId.ChaosRepressor),
                 RoleTypeId.ChaosConscript => GetRandomRole(RoleTypeId.ChaosRifleman, RoleTypeId.ChaosConscript, RoleTypeId.ChaosMarauder, RoleTypeId.ChaosRepressor),
                 RoleTypeId.ChaosMarauder => GetRandomRole(RoleTypeId.ChaosRifleman, RoleTypeId.ChaosConscript, RoleTypeId.ChaosMarauder, RoleTypeId.ChaosRepressor),
