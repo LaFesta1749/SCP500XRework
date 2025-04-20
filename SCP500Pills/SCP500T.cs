@@ -48,6 +48,13 @@ namespace SCP500XRework.SCP500Pills
         {
             if (!Check(ev.Item)) return;
 
+            if (Warhead.IsDetonated)
+            {
+                ev.Player.ShowHint("<color=red>You cannot use this pill after the nuclear detonation!</color>", 3);
+                ev.IsAllowed = false;
+                return;
+            }
+
             // 🚫 Проверяваме дали играчът е в асансьор или Pocket Dimension
             if (ev.Player.CurrentRoom.Type == RoomType.Pocket ||
                 ev.Player.CurrentRoom.Type == RoomType.HczElevatorA ||
