@@ -15,7 +15,7 @@ namespace SCP500XRework.SCP500Pills
 {
     public class SCP500T : CustomItem
     {
-        public override uint Id { get; set; } = 5008;
+        public override uint Id { get; set; } = 5033;
         public override string Name { get; set; } = "SCP-500-T";
         public override string Description { get; set; } = "Teleports you to a random location within the facility!";
         public override ItemType Type { get; set; } = ItemType.SCP500;

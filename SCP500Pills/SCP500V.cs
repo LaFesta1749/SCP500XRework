@@ -12,7 +12,7 @@ namespace SCP500XRework.SCP500Pills
 {
     public class SCP500V : CustomItem
     {
-        public override uint Id { get; set; } = 5009;
+        public override uint Id { get; set; } = 5035;
         public override string Name { get; set; } = "SCP-500-V";
         public override string Description { get; set; } = "Steals HP from nearby enemies and converts it into AHP.";
         public override ItemType Type { get; set; } = ItemType.SCP500;

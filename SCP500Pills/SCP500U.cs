@@ -13,7 +13,7 @@ namespace SCP500XRework.SCP500Pills
 {
     public class SCP500U : CustomItem
     {
-        public override uint Id { get; set; } = 5015;
+        public override uint Id { get; set; } = 5034;
         public override string Name { get; set; } = "SCP-500-U";
         public override string Description { get; set; } = "After 5 seconds, grants a random SCP-500 effect for 15 seconds.";
         public override ItemType Type { get; set; } = ItemType.SCP500;

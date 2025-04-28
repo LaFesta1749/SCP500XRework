@@ -15,7 +15,7 @@ namespace SCP500XRework.SCP500Pills
 {
     public class SCP500F : CustomItem
     {
-        public override uint Id { get; set; } = 5012;
+        public override uint Id { get; set; } = 5025;
         public override string Name { get; set; } = "SCP-500-F";
         public override string Description { get; set; } = "Simulates death, then revives you.";
         public override ItemType Type { get; set; } = ItemType.SCP500;

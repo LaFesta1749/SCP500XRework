@@ -13,7 +13,7 @@ namespace SCP500XRework.SCP500Pills
 {
     public class SCP500Y : CustomItem
     {
-        public override uint Id { get; set; } = 5017;
+        public override uint Id { get; set; } = 5038;
         public override string Name { get; set; } = "SCP-500-Y";
         public override string Description { get; set; } = "An unpredictable pill that oscillates between good and bad effects.";
         public override ItemType Type { get; set; } = ItemType.SCP500;

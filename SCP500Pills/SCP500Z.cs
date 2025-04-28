@@ -13,7 +13,7 @@ namespace SCP500XRework.SCP500Pills
 {
     public class SCP500Z : CustomItem
     {
-        public override uint Id { get; set; } = 5018;
+        public override uint Id { get; set; } = 5039;
         public override string Name { get; set; } = "SCP-500-Z";
         public override string Description { get; set; } = "You die and return as an enhanced SCP-049-2.";
         public override ItemType Type { get; set; } = ItemType.SCP500;

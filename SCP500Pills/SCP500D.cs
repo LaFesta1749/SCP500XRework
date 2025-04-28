@@ -14,7 +14,7 @@ namespace SCP500XRework.SCP500Pills
 {
     public class SCP500D : CustomItem
     {
-        public override uint Id { get; set; } = 5003;
+        public override uint Id { get; set; } = 5023;
         public override string Name { get; set; } = "SCP-500-D";
         public override string Description { get; set; } = "Temporarily disguises you as the enemy!";
         public override ItemType Type { get; set; } = ItemType.SCP500;

@@ -13,7 +13,7 @@ namespace SCP500XRework.SCP500Pills
 {
     public class SCP500A : CustomItem
     {
-        public override uint Id { get; set; } = 5000; // Уникално ID за SCP-500-A
+        public override uint Id { get; set; } = 5020; // Уникално ID за SCP-500-A
         public override string Name { get; set; } = "SCP-500-A";
         public override string Description { get; set; } = "Summons a dead player to help you.";
         public override ItemType Type { get; set; } = ItemType.SCP500;

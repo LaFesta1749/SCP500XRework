@@ -13,7 +13,7 @@ namespace SCP500XRework.SCP500Pills
 {
     public class SCP500B : CustomItem
     {
-        public override uint Id { get; set; } = 5001; // Уникално ID за SCP-500-B
+        public override uint Id { get; set; } = 5021; // Уникално ID за SCP-500-B
         public override string Name { get; set; } = "SCP-500-B";
         public override string Description { get; set; } = "Swaps your team to the opposite faction.";
         public override ItemType Type { get; set; } = ItemType.SCP500;
