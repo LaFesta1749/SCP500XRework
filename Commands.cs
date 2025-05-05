@@ -18,11 +18,11 @@ namespace SCP500XRework
 
         private static readonly Dictionary<string, uint> PillIds = new()
         {
-            { "A", 5000 }, { "B", 5001 }, { "C", 5002 }, { "D", 5003 },
-            { "E", 5011 }, { "F", 5012 }, { "H", 5004 }, { "I", 5005 },
-            { "L", 5013 }, { "M", 5006 }, { "O", 5014 }, { "P", 5019 },
-            { "S", 5007 }, { "T", 5008 }, { "U", 5015 }, { "V", 5009 },
-            { "W", 5016 }, { "X", 5010 }, { "Y", 5017 }, { "Z", 5018 }
+            { "A", 5020 }, { "B", 5021 }, { "C", 5022 }, { "D", 5023 },
+            { "E", 5024 }, { "F", 5025 }, { "H", 5026 }, { "I", 5027 },
+            { "L", 5028 }, { "M", 5029 }, { "O", 5030 }, { "P", 5031 },
+            { "S", 5032 }, { "T", 5033 }, { "U", 5034 }, { "V", 5035 },
+            { "W", 5036 }, { "X", 5037 }, { "Y", 5038 }, { "Z", 5039 }
         };
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
