@@ -75,34 +75,37 @@ namespace SCP500XRework.SCP500Pills
 
         private Vector3 ApplyDistortion(Player player)
         {
-            Vector3 scale = OriginalScales[player]; // Взимаме оригиналния модел
+            Vector3 scale = player.Scale; // Фолбек в случай че не е в OriginalScales
 
-            int distortionType = UnityEngine.Random.Range(0, 6); // 6 различни модификации
+            if (OriginalScales.TryGetValue(player, out Vector3 originalScale))
+                scale = originalScale;
+
+            int distortionType = UnityEngine.Random.Range(0, 6);
 
             switch (distortionType)
             {
                 case 0:
-                    scale.y = 0.5f; // Малък и левитиращ
+                    scale.y = 0.5f;
                     player.Broadcast(5, "<color=#ff8dfb>You appear short and floating!</color>");
                     break;
                 case 1:
-                    scale.z *= -1f; // Обърнат назад
+                    scale.z *= -1f;
                     player.Broadcast(5, "<color=#ff8dfb>You appear to be facing backwards!</color>");
                     break;
                 case 2:
-                    scale.z = 0.05f; // Хартиен модел (много тънък)
+                    scale.z = 0.05f;
                     player.Broadcast(5, "<color=#ff8dfb>You appear paper thin!</color>");
                     break;
                 case 3:
-                    scale.x = 1.3f; // Разширен модел
+                    scale.x = 1.3f;
                     player.Broadcast(5, "<color=#ff8dfb>You appear wider!</color>");
                     break;
                 case 4:
-                    scale.y = 1.2f; // По-висок модел
+                    scale.y = 1.2f;
                     player.Broadcast(5, "<color=#ff8dfb>You appear taller!</color>");
                     break;
                 case 5:
-                    scale.y = 0.8f; // Клекнал модел
+                    scale.y = 0.8f;
                     player.Broadcast(5, "<color=#ff8dfb>You appear squashed!</color>");
                     break;
             }
