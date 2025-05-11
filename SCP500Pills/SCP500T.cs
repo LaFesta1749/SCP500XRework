@@ -79,8 +79,9 @@ namespace SCP500XRework.SCP500Pills
 
             var validRooms = Room.List
                 .Where(room => AllowedZones.Contains(room.Zone) &&
-                               room.Type != RoomType.EzCollapsedTunnel &&
-                               room.Type != RoomType.EzShelter)
+                               room.Type != RoomType.EzCollapsedTunnel && // ❌ Изключваме стаята
+                               room.Type != RoomType.EzShelter && // ❌ Изключваме стаята
+                               room.Type != RoomType.Lcz330) // ❌ Изключваме стаята със SCP-330
                 .ToList();
 
             if (validRooms.Count == 0)
