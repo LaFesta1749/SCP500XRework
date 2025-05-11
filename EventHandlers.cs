@@ -20,7 +20,7 @@ namespace SCP500XRework
 
             int pillsToSpawn = PillsPlugin.Instance.Config.MaxPillsPerRound;
             int spawnedCount = 0;
-            List<string> pillTypes = new List<string>(PillsPlugin.Instance.Config.PillsSpawnChance.Keys);
+            List<string> pillTypes = new(PillsPlugin.Instance.Config.PillsSpawnChance.Keys);
 
             while (spawnedCount < pillsToSpawn)
             {
@@ -71,7 +71,7 @@ namespace SCP500XRework
 
         private void CreateLightSource(Vector3 position, Color color)
         {
-            GameObject lightObject = new GameObject("SCP500_Light");
+            GameObject lightObject = new("SCP500_Light");
             lightObject.transform.position = position;
 
             Light light = lightObject.AddComponent<Light>();
@@ -86,7 +86,7 @@ namespace SCP500XRework
 
         private Vector3 GetRandomSpawnPosition()
         {
-            List<Room> rooms = new List<Room>(Room.List);
+            List<Room> rooms = new(Room.List);
             Room randomRoom = rooms[Random.Next(rooms.Count)];
             return randomRoom.Position + new Vector3((float)(Random.NextDouble() * 4 - 2), 0.2f, (float)(Random.NextDouble() * 4 - 2));
         }

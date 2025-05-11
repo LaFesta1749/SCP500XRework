@@ -38,6 +38,12 @@ namespace SCP500XRework.SCP500Pills
 
         private void OnItemUsed(UsingItemEventArgs ev)
         {
+            if (ev.Item == null || ev.Player == null)
+            {
+                Log.Warn("[SCP500-I] Item or Player was null during OnItemUsed.");
+                return;
+            }
+
             if (!Check(ev.Item)) return; // ✅ Проверява дали използваното хапче е SCP-500-I
 
             // 🚫 Проверяваме дали играчът е в асансьор или Pocket Dimension
