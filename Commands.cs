@@ -27,55 +27,92 @@ namespace SCP500XRework
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
+            if (arguments.Count < 1)
+            {
+                response = "❌ Usage: .gp <pillstring> [playerId]";
+                return false;
+            }
+
             if (sender is not PlayerCommandSender playerSender)
             {
                 response = "❌ This command can only be used by a player!";
                 return false;
             }
 
-            if (arguments.Count < 1)
+            string pillString = arguments.At(0).ToUpper();
+            if (string.IsNullOrWhiteSpace(pillString))
             {
-                response = "❌ Usage: .gp <pill_letter> (e.g., .gp B)";
+                response = "❌ Invalid pill string!";
                 return false;
             }
 
-            string pillKey = arguments.At(0).ToUpper();
-            if (!PillIds.TryGetValue(pillKey, out uint pillId))
+            // Целева играч
+            Player targetPlayer;
+            if (arguments.Count >= 2 && int.TryParse(arguments.At(1), out int targetId))
             {
-                response = "❌ Invalid pill name!";
-                return false;
+                targetPlayer = Player.Get(targetId);
+                if (targetPlayer == null)
+                {
+                    response = $"❌ Player with ID {targetId} not found!";
+                    return false;
+                }
+            }
+            else
+            {
+                targetPlayer = Player.Get(playerSender.ReferenceHub);
+                if (targetPlayer == null)
+                {
+                    response = "❌ Could not find your player instance!";
+                    return false;
+                }
             }
 
-            Player player = Player.Get(playerSender.ReferenceHub);
-            if (player == null)
+            Dictionary<string, int> pillCounts = new();
+
+            // Броим колко пъти се среща всяка валидна буква
+            foreach (char c in pillString)
             {
-                response = "❌ Could not find player!";
-                return false;
+                string key = c.ToString();
+                if (!PillIds.ContainsKey(key))
+                {
+                    response = $"❌ Invalid pill type: {c}";
+                    return false;
+                }
+
+                if (!pillCounts.ContainsKey(key))
+                    pillCounts[key] = 0;
+
+                pillCounts[key]++;
             }
 
-            if (!CustomItem.TryGet(pillId, out CustomItem? pillItem) || pillItem == null)
+            List<string> given = new();
+
+            foreach (var kvp in pillCounts)
             {
-                response = $"❌ Pill SCP-500-{pillKey} is not registered!";
-                return false;
+                if (!CustomItem.TryGet(PillIds[kvp.Key], out CustomItem? pillItem) || pillItem == null)
+                {
+                    response = $"❌ Pill SCP-500-{kvp.Key} is not registered!";
+                    return false;
+                }
+
+                for (int i = 0; i < kvp.Value; i++)
+                    pillItem.Give(targetPlayer);
+
+                given.Add($"{kvp.Value}x SCP-500-{kvp.Key}");
             }
 
-            // Дава на играча персонализираното хапче
-            pillItem.Give(player);
-
-            response = $"✅ [GP] {player.Nickname} received a SCP-500-{pillKey} pill!";
+            response = $"✅ [GP] {targetPlayer.Nickname} received: {string.Join(", ", given)}";
             return true;
-
         }
-    }
 
-    [CommandHandler(typeof(RemoteAdminCommandHandler))]
-    public class PillsListCommand : ICommand
-    {
-        public string Command { get; } = "pills";
-        public string[] Aliases { get; } = new string[] { };
-        public string Description { get; } = "Lists all SCP-500 pills and their effects.";
+        [CommandHandler(typeof(RemoteAdminCommandHandler))]
+        public class PillsListCommand : ICommand
+        {
+            public string Command { get; } = "pills";
+            public string[] Aliases { get; } = new string[] { };
+            public string Description { get; } = "Lists all SCP-500 pills and their effects.";
 
-        private static readonly Dictionary<string, string> PillEffects = new()
+            private static readonly Dictionary<string, string> PillEffects = new()
         {
             { "A", "Summons a teammate." },
             { "B", "Switches your team." },
@@ -99,96 +136,97 @@ namespace SCP500XRework
             { "Z", "Cures all SCP-008 infections." }
         };
 
-        public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
-        {
-            string pillsList = "📜 **SCP-500 Pills List:**\n";
-            foreach (var pill in PillEffects)
+            public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
             {
-                pillsList += $"🔹 SCP-500-{pill.Key}: {pill.Value}\n";
-            }
-
-            response = pillsList;
-            return true;
-        }
-    }
-
-    [CommandHandler(typeof(RemoteAdminCommandHandler))]
-    public class SpawnAllPillsCommand : ICommand
-    {
-        public string Command { get; } = "sap";
-        public string[] Aliases { get; } = new string[] { };
-        public string Description { get; } = "Forces all SCP-500 pills to spawn.";
-
-        public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
-        {
-            if (PillsPlugin.Instance == null || PillsPlugin.Instance.eventHandlers == null)
-            {
-                response = "❌ Plugin is not initialized!";
-                return false;
-            }
-
-            PillsPlugin.Instance.eventHandlers.OnRoundStart();
-            response = "✅ All SCP-500 pills have been spawned!";
-            return true;
-        }
-    }
-
-    [CommandHandler(typeof(RemoteAdminCommandHandler))]
-    public class TeleportToNearestPillCommand : ICommand
-    {
-        public string Command { get; } = "tpnp";
-        public string[] Aliases { get; } = new string[] { };
-        public string Description { get; } = "Teleports the player to the nearest SCP-500 pill.";
-
-        public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
-        {
-            if (sender is not PlayerCommandSender playerSender)
-            {
-                response = "❌ This command can only be used by a player!";
-                return false;
-            }
-
-            Player player = Player.Get(playerSender.ReferenceHub);
-            if (player == null)
-            {
-                response = "❌ Could not find player!";
-                return false;
-            }
-
-            if (PillsPlugin.Instance == null || PillsPlugin.Instance.eventHandlers == null)
-            {
-                response = "❌ Plugin is not initialized!";
-                return false;
-            }
-
-            if (PillsPlugin.Instance.eventHandlers.spawnedPills.Count == 0)
-            {
-                response = "❌ No SCP-500 pills found!";
-                return false;
-            }
-
-            Vector3 nearestPill = Vector3.zero;
-            float minDistance = float.MaxValue;
-
-            foreach (Vector3 pillPosition in PillsPlugin.Instance.eventHandlers.spawnedPills)
-            {
-                float distance = Vector3.Distance(player.Position, pillPosition);
-                if (distance < minDistance)
+                string pillsList = "📜 **SCP-500 Pills List:**\n";
+                foreach (var pill in PillEffects)
                 {
-                    minDistance = distance;
-                    nearestPill = pillPosition;
+                    pillsList += $"🔹 SCP-500-{pill.Key}: {pill.Value}\n";
                 }
-            }
 
-            if (nearestPill == Vector3.zero)
+                response = pillsList;
+                return true;
+            }
+        }
+
+        [CommandHandler(typeof(RemoteAdminCommandHandler))]
+        public class SpawnAllPillsCommand : ICommand
+        {
+            public string Command { get; } = "sap";
+            public string[] Aliases { get; } = new string[] { };
+            public string Description { get; } = "Forces all SCP-500 pills to spawn.";
+
+            public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
             {
-                response = "❌ Could not find the nearest SCP-500 pill!";
-                return false;
-            }
+                if (PillsPlugin.Instance == null || PillsPlugin.Instance.eventHandlers == null)
+                {
+                    response = "❌ Plugin is not initialized!";
+                    return false;
+                }
 
-            player.Position = nearestPill;
-            response = $"✅ Teleported {player.Nickname} to the nearest SCP-500 pill at {nearestPill}!";
-            return true;
+                PillsPlugin.Instance.eventHandlers.OnRoundStart();
+                response = "✅ All SCP-500 pills have been spawned!";
+                return true;
+            }
+        }
+
+        [CommandHandler(typeof(RemoteAdminCommandHandler))]
+        public class TeleportToNearestPillCommand : ICommand
+        {
+            public string Command { get; } = "tpnp";
+            public string[] Aliases { get; } = new string[] { };
+            public string Description { get; } = "Teleports the player to the nearest SCP-500 pill.";
+
+            public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
+            {
+                if (sender is not PlayerCommandSender playerSender)
+                {
+                    response = "❌ This command can only be used by a player!";
+                    return false;
+                }
+
+                Player player = Player.Get(playerSender.ReferenceHub);
+                if (player == null)
+                {
+                    response = "❌ Could not find player!";
+                    return false;
+                }
+
+                if (PillsPlugin.Instance == null || PillsPlugin.Instance.eventHandlers == null)
+                {
+                    response = "❌ Plugin is not initialized!";
+                    return false;
+                }
+
+                if (PillsPlugin.Instance.eventHandlers.spawnedPills.Count == 0)
+                {
+                    response = "❌ No SCP-500 pills found!";
+                    return false;
+                }
+
+                Vector3 nearestPill = Vector3.zero;
+                float minDistance = float.MaxValue;
+
+                foreach (Vector3 pillPosition in PillsPlugin.Instance.eventHandlers.spawnedPills)
+                {
+                    float distance = Vector3.Distance(player.Position, pillPosition);
+                    if (distance < minDistance)
+                    {
+                        minDistance = distance;
+                        nearestPill = pillPosition;
+                    }
+                }
+
+                if (nearestPill == Vector3.zero)
+                {
+                    response = "❌ Could not find the nearest SCP-500 pill!";
+                    return false;
+                }
+
+                player.Position = nearestPill;
+                response = $"✅ Teleported {player.Nickname} to the nearest SCP-500 pill at {nearestPill}!";
+                return true;
+            }
         }
     }
 }
