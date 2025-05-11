@@ -12,8 +12,8 @@ namespace SCP500XRework
         public override string Author => "LaFesta1749";
         public override string Name => "SCP-500 Pills";
         public override string Prefix => "SCP500Pills";
-        public override Version Version => new Version(1, 0, 7);
-
+        public override Version Version => new Version(1, 0, 8);
+        
         public static PillsPlugin Instance { get; private set; } = null!;
         public EventHandlers eventHandlers = null!;
 
